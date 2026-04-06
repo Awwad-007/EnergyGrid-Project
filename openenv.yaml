@@ -1,0 +1,3 @@
+name: energy-grid-env
+version: "1.0.0"
+description: "OpenEnv RL environment for smart grid load balancing and energy management."

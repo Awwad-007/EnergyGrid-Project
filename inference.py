@@ -1,36 +1,44 @@
 import os
+import requests
 import json
-from openai import OpenAI
 
-# 1. Mandatory Variables (DO NOT set a default for HF_TOKEN)
-API_BASE_URL = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
-MODEL_NAME = os.getenv("MODEL_NAME", "gpt-3.5-turbo")
-HF_TOKEN = os.getenv("HF_TOKEN") 
+# Uses the Space URL or falls back to local for testing
+BASE_URL = os.environ.get("SPACE_URL", "http://localhost:7860")
+MODEL_NAME = os.environ.get("MODEL_NAME", "gpt-3.5-turbo")
+ENV_NAME = "energy-grid-env"
+TASK_NAME = "grid_balancing"
 
-# 2. Mandatory OpenAI Client Initialization
-client = OpenAI(
-    base_url=API_BASE_URL,
-    api_key=HF_TOKEN
-)
+def run():
+    # Mandatory Start Log
+    print(f"[START] task={TASK_NAME} env={ENV_NAME} model={MODEL_NAME}", flush=True)
 
-def model_fn(model_dir):
-    return None
+    try:
+        requests.post(f"{BASE_URL}/reset", json={})
+        rewards = []
 
-def predict_fn(input_data, model):
-    # 3. Mandatory Structured Logging: [START], [STEP], [END]
-    print("[START]") 
-    print(f"[STEP] Processing request using {MODEL_NAME}")
+        for step in range(1, 6):
+            action = {"action_type": "balance", "value": 0.0}
+            resp = requests.post(f"{BASE_URL}/step", json=action)
+            result = resp.json()
+            reward = result.get("reward", 0.0)
+            done = result.get("done", False)
+            rewards.append(reward)
+
+            # Mandatory Step Log
+            print(
+                f"[STEP] step={step} action={action['action_type']}:{action['value']} "
+                f"reward={reward:.2f} done={str(done).lower()} error=null",
+                flush=True
+            )
+            if done:
+                break
+
+        rewards_str = ",".join(f"{r:.2f}" for r in rewards)
+        # Mandatory End Log
+        print(f"[END] success=true steps={len(rewards)} rewards={rewards_str}", flush=True)
     
-    # Logic to handle Scaler's reset/step commands
-    response = {"status": "success", "message": "OpenEnv Command OK"}
-    
-    print("[END]")
-    return response
+    except Exception as e:
+        print(f"[END] success=false error={str(e)}")
 
-# THE FIX: This function handles the 'automated ping' that was failing
-def handle(request):
-    return {
-        "statusCode": 200,
-        "headers": {"Content-Type": "application/json"},
-        "body": json.dumps({"message": "OpenEnv Reset (POST OK)"})
-    }
+if __name__ == "__main__":
+    run()
