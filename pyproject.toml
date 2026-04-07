@@ -1,0 +1,17 @@
+[project]
+name = "energy-grid-env"
+version = "0.1.0"
+description = "Smart Grid Load Balancing Environment"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "requests",
+    "openai",
+    "openenv-core",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
