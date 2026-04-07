@@ -1,7 +1,7 @@
 [project]
 name = "energy-grid-env"
 version = "0.1.0"
-description = "Smart Grid Load Balancing Environment"
+description = "Smart Grid Load Balancing Environment for OpenEnv"
 requires-python = ">=3.10"
 dependencies = [
     "fastapi",

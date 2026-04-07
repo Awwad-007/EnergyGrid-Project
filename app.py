@@ -1,12 +1,12 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware # Important
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
 import random
 
 app = FastAPI()
 
-# THE FIX: This allows the Scaler bot to bypass the 403 Forbidden wall
+# THE FIX: Bypasses the 403 Forbidden wall for the Scaler bot
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -46,7 +46,6 @@ def step(action: Action):
     else:
         state["grid_load"] = max(0.0, state["grid_load"] - 0.1)
         reward = -0.1
-
     done = state["step"] >= 5
     return {
         "observation": {"grid_load": state["grid_load"], "step": state["step"]},
